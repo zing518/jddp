@@ -237,7 +237,7 @@ async function ping() {
     console.log(`开始检测API接口是否能直接访问！`)  
     if($.apidata.h5stchose=='n'||$.apidata.h5stchose=='ng'){
         starttime=Date.now()
-        let Status=$.changeplan?await checkserver1('https://api.nolanstore.top/ping'):await checkserver1('https://api.nolanstore.top/ping')
+        let Status=$.changeplan?await checkserver1('https://api.nolanstore.top/ping'):await checkserver('https://api.nolanstore.top/ping')
         console.debug('N接口:',Status)
         if(Status*1 == 200){
             $.toStatus = true               
@@ -248,7 +248,7 @@ async function ping() {
     }
     if($.apidata.h5stchose=='g'||$.apidata.h5stchose=='ng'){
         starttime=Date.now()
-        let Status=$.changeplan?await checkserver1('https://jd.smiek.tk/to_status'):await checkserver1('https://jd.smiek.tk/to_status')
+        let Status=$.changeplan?await checkserver1('https://jd.smiek.tk/to_status'):await checkserver('https://jd.smiek.tk/to_status')
         console.debug('G接口:',Status)
         if(Status*1== 200){
             $.toStatus = true                
