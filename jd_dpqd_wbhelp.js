@@ -4,7 +4,7 @@
 
 console.log('当前版本号','20221009-v1.0')
 console.log('若脚本报错则增加变量TK_SIGN_method为b再试一次，还不行就用旧脚本！')
-const yxl = require('./yxl')
+const yxl = require('./depend/yxl')
 const $ = new yxl.Env('挖宝助力（店铺签到专用）');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : ''
 const notify = $.isNode() ? require('./sendNotify') : ''
