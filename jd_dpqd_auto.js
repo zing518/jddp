@@ -8,7 +8,7 @@
  * 用上面的环境变量报读取出错则拆分为TK_SIGN_ID和TK_SIGN_SIGN两个变量，对应上面｛｝里的两个值，若不报错则忽略此行。
 */
 console.log('当前版本号','20221009-v1.0')
-console.log('若脚本报错则增加变量TK_SIGN_method为b再试一次，还不行就用旧脚本！')
+console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
 console.log('增加变量TK_SIGN_WAIT，控制零点店铺签到间隔，单位是秒，不是毫秒。默认是1s。')
 console.log('增加变量TK_SIGN_delay，控制零点签到开始时间，单位是秒，不是毫秒。默认是-0.1s。\n主要是修正网络延迟，带-表示在0.0.0秒前0.1s开始。')
 const yxl = require('./depend/yxl')
