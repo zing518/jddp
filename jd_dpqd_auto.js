@@ -123,7 +123,7 @@ if(process.env.TK_SIGN_method&&process.env.TK_SIGN_method=='planb'){
     };
 })()
 .catch((e) => {
-    console.debug("店铺签到（自动更新）error', e)
+    console.debug('店铺签到（自动更新）error', e)
 })
 .finally(() => {
     $.done();
