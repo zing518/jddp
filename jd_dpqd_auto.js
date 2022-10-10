@@ -80,12 +80,15 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
   }
   // 获取控制参数
   if (apidata.debug == '') console.debug = () => { }
-  control = JSON.parse(apidata.control)
+  control = apidata.control
+  control = $.toObj(control,control)
   if (control.qd === "off") {
     console.log("\n店铺签到暂停！！")
   }
   // 获取签到token
-  token = JSON.parse(apidata.dpqd)
+  token = apidata.dpqd
+  token = $.toObj(token,token)
+
   console.debug("获取签到数据：", token)
   cookiesArr = await requireConfig()
   // 零点签到
