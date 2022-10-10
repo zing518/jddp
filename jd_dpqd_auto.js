@@ -142,7 +142,7 @@ async function firststep(){
             await dpqd()
             //await $.wait(100)
         } catch (e) {
-           console.debug("零点按用户顺序签到error', e)
+           console.debug('零点按用户顺序签到error', e)
         }
     }
 }
@@ -158,7 +158,7 @@ async function secondstep(){
             await dpqd1()
             //await $.wait(100)
         } catch (e) {
-            console.debug("零点之后按用户顺序签到error', e)
+            console.debug('零点之后按用户顺序签到error', e)
         }
     }
 }
@@ -209,7 +209,7 @@ function signCollectGift(token) {
     }
     //proxy(options)
     $.get(options, (err, resp, data) => {
-	    console.debug("零点店铺签到', err, resp, data)
+	    console.debug('零点店铺签到', err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -241,7 +241,7 @@ function signCollectGift(token) {
 					}
         }
       } catch (e) {
-        console.debug("零点店铺签到error', e)
+        console.debug('零点店铺签到error', e)
       } finally {
         resolve(data);
       }
@@ -283,7 +283,7 @@ async function getvender(Id) {
             message += 'IP黑名单;'
         }
     } catch (e) {
-        console.debug("打开首页error', e)
+        console.debug('打开首页error', e)
     }  
 }
 //零点之后店铺签到
@@ -303,7 +303,7 @@ function signCollect(token,activity) {
     }
     //proxy(options)
     $.get(options, (err, resp, data) => {
-	    console.debug("零点之后店铺签到',err, resp, data)
+	    console.debug('零点之后店铺签到',err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -320,7 +320,7 @@ function signCollect(token,activity) {
             }
         }
       } catch (e) {
-        console.debug("零点之后店铺签到', e)
+        console.debug('零点之后店铺签到', e)
       } finally {
         resolve(data);
       }
@@ -343,7 +343,7 @@ function taskUrl(token,venderId,activityId) {
       }
     }
     $.get(options, (err, resp, data) => {
-	    console.debug("店铺获取签到信息',err, resp, data)
+	    console.debug('店铺获取签到信息',err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -357,13 +357,14 @@ function taskUrl(token,venderId,activityId) {
             }
         }
       } catch (e) {
-        console.debug("店铺获取签到信息',e)
+        console.debug('店铺获取签到信息',e)
       } finally {
         resolve(data);
       }
     })
   })
 }
+
 async function requireConfig(check = false) {
     let cookiesArr = []
     const jdCookieNode = require('./jdCookie.js')
