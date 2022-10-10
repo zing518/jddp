@@ -8,10 +8,10 @@
  * 用上面的环境变量报读取出错则拆分为TK_SIGN_ID和TK_SIGN_SIGN两个变量，对应上面｛｝里的两个值，若不报错则忽略此行。
 */
 console.log('当前版本号','20221009-v1.0')
-console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
+console.log('若脚本报错则增加变量TK_SIGN_method为b再试一次，还不行就用旧脚本！')
 console.log('增加变量TK_SIGN_WAIT，控制零点店铺签到间隔，单位是秒，不是毫秒。默认是1s。')
 console.log('增加变量TK_SIGN_delay，控制零点签到开始时间，单位是秒，不是毫秒。默认是-0.1s。\n主要是修正网络延迟，带-表示在0.0.0秒前0.1s开始。')
-const yxl = require('./depend/yxl')
+const yxl = require('./yxl')
 let TK_SIGN
 if (process.env.TK_SIGN) {
 	TK_SIGN = JSON.parse(process.env.TK_SIGN)
@@ -79,12 +79,14 @@ if(process.env.TK_SIGN_method&&process.env.TK_SIGN_method=='planb'){
 	    message+="\n======通知======\n"+emergency+"\n"
     }
 // 获取控制参数
+    if ($.apidata.debug== '') console.debug = () => {}
     control = JSON.parse(apidata.control)
     if(control.qd==="off"){
         console.log("\n店铺签到暂停！！")
     }
 // 获取签到token
     token = JSON.parse(apidata.dpqd)
+    console.debug("获取签到数据：",token)
     cookiesArr = await requireConfig()
 // 零点签到
     if (nowHours==23&&nowMinutes>55){
@@ -121,7 +123,7 @@ if(process.env.TK_SIGN_method&&process.env.TK_SIGN_method=='planb'){
     };
 })()
 .catch((e) => {
-    $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+    console.debug("店铺签到（自动更新）error', e)
 })
 .finally(() => {
     $.done();
@@ -140,7 +142,7 @@ async function firststep(){
             await dpqd()
             //await $.wait(100)
         } catch (e) {
-            console.log('error', e)
+           console.debug("零点按用户顺序签到error', e)
         }
     }
 }
@@ -156,7 +158,7 @@ async function secondstep(){
             await dpqd1()
             //await $.wait(100)
         } catch (e) {
-            console.log('error', e)
+            console.debug("零点之后按用户顺序签到error', e)
         }
     }
 }
@@ -207,6 +209,7 @@ function signCollectGift(token) {
     }
     //proxy(options)
     $.get(options, (err, resp, data) => {
+	    console.debug("零点店铺签到', err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -238,7 +241,7 @@ function signCollectGift(token) {
 					}
         }
       } catch (e) {
-        $.logErr(e, resp);
+        console.debug("零点店铺签到error', e)
       } finally {
         resolve(data);
       }
@@ -280,7 +283,7 @@ async function getvender(Id) {
             message += 'IP黑名单;'
         }
     } catch (e) {
-        console.log('打开首页失败！！')
+        console.debug("打开首页error', e)
     }  
 }
 //零点之后店铺签到
@@ -300,6 +303,7 @@ function signCollect(token,activity) {
     }
     //proxy(options)
     $.get(options, (err, resp, data) => {
+	    console.debug("零点之后店铺签到',err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -316,7 +320,7 @@ function signCollect(token,activity) {
             }
         }
       } catch (e) {
-        $.logErr(e, resp);
+        console.debug("零点之后店铺签到', e)
       } finally {
         resolve(data);
       }
@@ -339,6 +343,7 @@ function taskUrl(token,venderId,activityId) {
       }
     }
     $.get(options, (err, resp, data) => {
+	    console.debug("店铺获取签到信息',err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -352,14 +357,13 @@ function taskUrl(token,venderId,activityId) {
             }
         }
       } catch (e) {
-        $.logErr(e, resp);
+        console.debug("店铺获取签到信息',e)
       } finally {
         resolve(data);
       }
     })
   })
 }
-
 async function requireConfig(check = false) {
     let cookiesArr = []
     const jdCookieNode = require('./jdCookie.js')
