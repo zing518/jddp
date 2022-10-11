@@ -79,7 +79,12 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
     message += "\n======通知======\n" + emergency + "\n"
   }
   // 获取控制参数
-  if (apidata.debug == '') console.debug = () => { }
+    if (process.env.TK_SIGN_info&&process.env.TK_SIGN_info==="info"){
+    console.log(`截图报错日志发到群里！`)
+    } else{
+    console.log(`如果报错，增加变量TK_SIGN_info值为info可显示详细报错原因！`)
+    console.info = () => { }
+    }
   control = apidata.control
   control = $.toObj(control,control)
   if (control.qd === "off") {
@@ -89,7 +94,7 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
   token = apidata.dpqd
   token = $.toObj(token,token)
 
-  console.debug("获取签到数据：", token)
+  console.info("获取签到数据：", token)
   cookiesArr = await requireConfig()
   // 零点签到
   if (nowHours == 23 && nowMinutes > 55) {
@@ -126,7 +131,7 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
   };
 })()
   .catch((e) => {
-    console.debug('店铺签到（自动更新）error', e)
+    console.info('店铺签到（自动更新）error', e)
   })
   .finally(() => {
     $.done();
@@ -145,7 +150,7 @@ async function firststep() {
       await dpqd()
       //await $.wait(100)
     } catch (e) {
-      console.debug('零点按用户顺序签到error', e)
+      console.info('零点按用户顺序签到error', e)
     }
   }
 }
@@ -161,7 +166,7 @@ async function secondstep() {
       await dpqd1()
       //await $.wait(100)
     } catch (e) {
-      console.debug('零点之后按用户顺序签到error', e)
+      console.info('零点之后按用户顺序签到error', e)
     }
   }
 }
@@ -212,14 +217,14 @@ function signCollectGift(token) {
     }
     //proxy(options)
     $.get(options, (err, resp, data) => {
-      console.debug('零点店铺签到', err, resp, data)
+      console.info('零点店铺签到', err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
           $.logErr(err);
         } else {
           data = $.toObj(data, data)
-          console.debug(`${$.name}: \n`, data)
+          console.info(`${$.name}: \n`, data)
           switch (String(data.code)) {
             case '200':
               let info = sollectGift(data.data)
@@ -244,7 +249,7 @@ function signCollectGift(token) {
           }
         }
       } catch (e) {
-        console.debug('零点店铺签到error', e)
+        console.info('零点店铺签到error', e)
       } finally {
         resolve(data);
       }
@@ -286,7 +291,7 @@ async function getvender(Id) {
       message += 'IP黑名单;'
     }
   } catch (e) {
-    console.debug('打开首页error', e)
+    console.info('打开首页error', e)
   }
 }
 //零点之后店铺签到
@@ -306,7 +311,7 @@ function signCollect(token, activity) {
     }
     //proxy(options)
     $.get(options, (err, resp, data) => {
-      console.debug('零点之后店铺签到', err, resp, data)
+      console.info('零点之后店铺签到', err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -323,7 +328,7 @@ function signCollect(token, activity) {
           }
         }
       } catch (e) {
-        console.debug('零点之后店铺签到', e)
+        console.info('零点之后店铺签到', e)
       } finally {
         resolve(data);
       }
@@ -346,7 +351,7 @@ function taskUrl(token, venderId, activityId) {
       }
     }
     $.get(options, (err, resp, data) => {
-      console.debug('店铺获取签到信息', err, resp, data)
+      console.info('店铺获取签到信息', err, resp, data)
       try {
         if (err) {
           console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
@@ -360,7 +365,7 @@ function taskUrl(token, venderId, activityId) {
           }
         }
       } catch (e) {
-        console.debug('店铺获取签到信息', e)
+        console.info('店铺获取签到信息', e)
       } finally {
         resolve(data);
       }
