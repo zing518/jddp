@@ -109,7 +109,7 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
       }
       console.log('零点店铺签到间隔:', interval + '秒!')
       await firststep();
-      await yxl[$.changeplan ? 'count1' : 'count'](TK_SIGN.id, 'requesttimes', requesttimes)
+      await yxl[$.changeplan ? 'count1' : 'count'](TK_SIGN.id,TK_SIGN.sign, 'requesttimes')
     }
     //其他时段签到                  
   } else {
@@ -243,6 +243,10 @@ function signCollectGift(token) {
               console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
               message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
               break;
+            case '407000007':
+              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
+              message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
+              break;
             default:
               console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName}${JSON.stringify(data)}`);
               message += `同步× ${token.shopName} 未知错误，查看日志！\n`;
@@ -361,7 +365,7 @@ function taskUrl(token, venderId, activityId) {
           data = JSON.parse(/{(.*)}/g.exec(data)[0])
           if (data.code === 200) {
             logtemp.push('第' + data.data.days + '天。')
-            message += `第` + data.data.days + `天。`
+            message += `第` + data.data.days + `天。\n`
           }
         }
       } catch (e) {
@@ -397,19 +401,7 @@ function getRandomNumberByRange(start, end) {
   return Math.floor(Math.random() * (end - start) + start)
 }
 // 以上都是抄来的，我也不知道干啥用的，不要瞎改就对了
-//定义等待函数，如果当前分钟数大于58，则等待设定秒数
-async function waitfor(starttime = 59.85) {
-  if (new Date().Format("mm") > 58) {
-    console.log(`快到整点时间，需等待约59s开始签到........`);
-    const nowtime = new Date().Format("s.S")
-    const sleeptime = (starttime - nowtime) * 1000;
-    console.log(`本次实际等待时间 ${sleeptime / 1000}`);
-    await $.wait(sleeptime)
-  } else {
-    console.log(`马上开始签到..........`);
-    await $.wait(0)
-  }
-}
+
 //定义通知函数
 async function showMsg() {
   if ($.isNode()) {
