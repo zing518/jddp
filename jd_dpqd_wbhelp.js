@@ -88,7 +88,12 @@ $.PROXY_LIST=[]
         $.apidata = []
         return
     }
-    if ($.apidata.debug== '') console.debug = () => {}
+    if (process.env.TK_SIGN_info&&process.env.TK_SIGN_info==="info"){
+        console.log(`截图报错日志发到群里！`)
+    } else{
+        console.log(`如果报错，增加变量TK_SIGN_info值为info可显示详细报错原因！`)
+        console.info = () => { }
+    }
     await ping()
     //等到0点0分20秒$.apidata.begain值为开始秒数
     if(new Date().getHours()==0){
@@ -107,10 +112,10 @@ $.PROXY_LIST=[]
         }
         $.fcwb = $.apidata.fcwb
         $.fcwb=$.toObj($.fcwb,$.fcwb)
-        console.debug(`获取到fcwb:\n${$.toStr($.fcwb)}`);
+        console.info(`获取到fcwb:\n${$.toStr($.fcwb)}`);
         $.PROXY_LIST = $.apidata.plist
         $.PROXY_LIST=$.toObj($.PROXY_LIST,$.PROXY_LIST)
-        console.debug(`获取到PROXY_LIST:\n${$.toStr($.PROXY_LIST)}`);
+        console.info(`获取到PROXY_LIST:\n${$.toStr($.PROXY_LIST)}`);
         if ($.fcwb.length === 0) {
             console.log(`还未获取到助力码，${i===6?600:i*5}s后继续`);
             await $.wait(i===6?600000:i*5000)   
@@ -128,7 +133,7 @@ $.PROXY_LIST=[]
     $.nolantokenary=$.toObj($.nolantokenary,$.nolantokenary)
     $.nolantoken=process.env.TK_nolan_token||$.TK_SIGN.id<50?$.nolantokenary[0]:$.nolantokenary[1]
     $.nolantoken=$.nolantoken.replace(/\\/gi,"");
-    console.debug(`使用nolantoken:\n${await yxl.cutstr($.nolantoken)}`);
+    console.info(`使用nolantoken:\n${await yxl.cutstr($.nolantoken)}`);
 */
     $.h5stTK=$.apidata.h5stTK
     $.h5stTK=$.toObj($.h5stTK,$.h5stTK)
@@ -142,7 +147,7 @@ $.PROXY_LIST=[]
 // 根据设定运行时间启动助力
     if (nowHours==0||nowHours==23||$.apidata.runtime>0){    
         //执行助力
-        console.debug(`设定运行时间:${$.apidata.runtime}点！`);
+        console.info(`设定运行时间:${$.apidata.runtime}点！`);
         console.log(`该你助力了,开始助力！`)
 
         $.sendNotifyStatus = false // 发送消息 true 为发送 false 不发送 默认 true
@@ -238,7 +243,7 @@ async function ping() {
     if($.apidata.h5stchose=='n'||$.apidata.h5stchose=='ng'){
         starttime=Date.now()
         let Status=$.changeplan?await checkserver1('https://api.nolanstore.top/ping'):await checkserver('https://api.nolanstore.top/ping')
-        console.debug('N接口:',Status)
+        console.info('N接口:',Status)
         if(Status*1 == 200){
             $.toStatus = true               
             endtime=Date.now()
@@ -249,7 +254,7 @@ async function ping() {
     if($.apidata.h5stchose=='g'||$.apidata.h5stchose=='ng'){
         starttime=Date.now()
         let Status=$.changeplan?await checkserver1('https://jd.smiek.tk/to_status'):await checkserver('https://jd.smiek.tk/to_status')
-        console.debug('G接口:',Status)
+        console.info('G接口:',Status)
         if(Status*1== 200){
             $.toStatus = true                
             endtime=Date.now()
@@ -270,7 +275,7 @@ async function helpProcess(help) {
         let pnum=await yxl.randomNumber(0, $.PROXY_LIST.length-1)
         let prox=$.PROXY_LIST[pnum]
         prox=$.toObj(prox,prox)
-        console.debug('使用代理：',$.toStr(prox))
+        console.info('使用代理：',$.toStr(prox))
         PROXY_HOST=prox.ip
         PROXY_PORT=prox.port
     }
@@ -625,10 +630,10 @@ async function checkserver1(url) {
             timeout: 20000
         }
         $.get(options, async (err, resp, data) => {
-            console.debug(data)
+            console.info(data)
             try {
                 if (err) {
-                    console.debug(`连接服务器失败:`,err)
+                    console.info(`连接服务器失败:`,err)
                 } else {
                    let res = $.toObj(resp,resp)
                     if(res && typeof res == 'object'){
@@ -636,7 +641,7 @@ async function checkserver1(url) {
                     }
                 }
             } catch (e) {
-                console.debug(e)
+                console.info(e)
             } finally {
                 resolve(respcode)
             }
@@ -647,9 +652,9 @@ async function checkserver(url) {
 	try {
 		let config = {timeout: 20000}
 		let {status,data} = await axios.get(url, config)
-		console.debug(status,data)
+		console.info(status,data)
 		return status
-	} catch (e) {console.debug('连接服务器失败！\n',e)}
+	} catch (e) {console.info('连接服务器失败！\n',e)}
 }
 
 
