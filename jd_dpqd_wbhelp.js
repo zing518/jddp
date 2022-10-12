@@ -19,9 +19,7 @@ if(process.env.TK_SIGN_method&&process.env.TK_SIGN_method=='planb'){
 let whitelist = '' // 白名单 用&隔开 pin值(填中文
 let blacklist = '' // 黑名单 用&隔开 pin值(填中文
 let nowHours = new Date().getHours(),
-    fcwb = [],
     codestemp='',
-    apidata,
     PROXY_HOST ='',
     PROXY_PORT ='',
     wbh5st='',
@@ -128,13 +126,7 @@ $.PROXY_LIST=[]
     if ($.fcwb.length === 0) {;
         return
     }
-/** 获取凭证
-    $.nolantokenary=$.apidata.nolantoken
-    $.nolantokenary=$.toObj($.nolantokenary,$.nolantokenary)
-    $.nolantoken=process.env.TK_nolan_token||$.TK_SIGN.id<50?$.nolantokenary[0]:$.nolantokenary[1]
-    $.nolantoken=$.nolantoken.replace(/\\/gi,"");
-    console.info(`使用nolantoken:\n${await yxl.cutstr($.nolantoken)}`);
-*/
+
     $.h5stTK=$.apidata.h5stTK
     $.h5stTK=$.toObj($.h5stTK,$.h5stTK)
 // 获取紧急通知
@@ -190,8 +182,12 @@ $.PROXY_LIST=[]
         console.log('本次助力次数：',$.totalhelptimes)
         await yxl[$.changeplan?'count1':'count']($.TK_SIGN.id,$.TK_SIGN.sign,'totalhelptimes',$.totalhelptimes)
         console.log('本次助力成功次数',$.successhelptimes)
+        allMessage += `本次助力成功次数 ${$.successhelptimes}\n`
         await yxl[$.changeplan?'count1':'count']($.TK_SIGN.id,$.TK_SIGN.sign,'successhelptimes',$.successhelptimes)
-        if($.successhelptimes===0&&new Date().getHours() ==0) {console.log('你的第一次给了谁？')}  
+        if($.successhelptimes===0&&new Date().getHours() ==0) {
+            console.log('你的第一次给了谁？')
+            allMessage += `助力一直为零签到数据将停更！\n`
+            }  
 //其他时段签到                  
     }else{
         console.log(`您今日已助力过，不再运行！`)
