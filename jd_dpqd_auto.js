@@ -74,7 +74,7 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
   apidata = await yxl[$.changeplan ? 'readapi1' : 'readapi']('TOKEN', TK_SIGN.id, TK_SIGN.sign)
   // 获取紧急通知
   emergency = apidata.notify
-  if (nowHours > 0 && emergency !== "null") {
+  if (nowHours < 23 && emergency !== "null") {
     console.log("\n====================通知====================\n", emergency)
     message += "\n======通知======\n" + emergency + "\n"
   }
