@@ -1,5 +1,5 @@
 /**
- * cron: 20 0 * * *
+ * cron: 20 0 0 * * *
 */
 console.log('当前版本号', '20221105-v1.0，你自己玩fa财da赢jia的话就把这个脚本禁用！')
 console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
