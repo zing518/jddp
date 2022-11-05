@@ -53,7 +53,7 @@ let helpinfo = {};
         }
     }
     // 验证是否获取到助力码 
-    for (let i = 1; i < 7; i++) {
+    for (let i = 1; i < 8; i++) {
         new Date().getHours() == 0 || i > 1 ? $.apidata = await yxl[$.changeplan ? 'readapi1' : 'readapi']('TOKEN', $.TK_SIGN.id, $.TK_SIGN.sign) : ''
         $.apidata = $.toObj($.apidata, $.apidata)
         if (typeof $.apidata != "object") {
