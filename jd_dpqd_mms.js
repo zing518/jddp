@@ -131,7 +131,7 @@ let helpinfo = {};
     } else {
         console.log('无助力码！！\n')
     }
-
+    await notify.sendNotify(`新增助力脚本，自己玩这个的就把这个脚本禁用！`);
 })()
     .catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
