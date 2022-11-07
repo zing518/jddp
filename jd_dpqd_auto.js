@@ -14,18 +14,18 @@ console.log('增加变量TK_SIGN_delay，控制零点签到开始时间，单位
 const yxl = require('./depend/yxl')
 let TK_SIGN
 if (process.env.TK_SIGN) {
-  TK_SIGN = JSON.parse(process.env.TK_SIGN)
+    TK_SIGN = JSON.parse(process.env.TK_SIGN)
 }
 if (process.env.TK_SIGN_ID && process.env.TK_SIGN_SIGN) {
-  TK_SIGN = { id: process.env.TK_SIGN_ID, sign: process.env.TK_SIGN_SIGN }
+    TK_SIGN = { id: process.env.TK_SIGN_ID, sign: process.env.TK_SIGN_SIGN }
 }
 if (!TK_SIGN) {
-  console.log('联系@dpqd_boss获取TK_SIGN.')
-  return
+    console.log('联系@dpqd_boss获取TK_SIGN.')
+    return
 }
 let interval = 1
 if (process.env.TK_SIGN_WAIT && process.env.TK_SIGN_WAIT < 5) {
-  interval = process.env.TK_SIGN_WAIT
+    interval = process.env.TK_SIGN_WAIT
 }
 
 const $ = new yxl.Env('店铺签到（自动更新）');
@@ -49,382 +49,373 @@ let requesttimes = 0
 if (process.env.NOTIFY_DPQD) { notify_dpqd = process.env.NOTIFY_DPQD } //凌晨签到是否通知，变量设置true则通知，默认不通知，估计影响签到网速，未验证。22点签到通知结果。
 //时间格式
 Date.prototype.Format = function (fmt) { //author: meizz
-  var o = {
-    "M+": this.getMonth() + 1, //月份
-    "d+": this.getDate(), //日
-    "h+": this.getHours(), //小时
-    "m+": this.getMinutes(), //分
-    "s+": this.getSeconds(), //秒
-    "S": this.getMilliseconds() //毫秒
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1
-    .length));
-  for (var k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length ==
-      1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1
+        .length));
+    for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length ==
+            1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
 }
 if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
-  $.changeplan = true
+    $.changeplan = true
 } else {
-  $.changeplan = false
+    $.changeplan = false
 }
 !(async () => {
-  // 获取API接口数据
-  apidata = await yxl[$.changeplan ? 'readapi1' : 'readapi']('TOKEN', TK_SIGN.id, TK_SIGN.sign)
-  // 获取紧急通知
-  emergency = apidata.notify
-  if (nowHours < 23 && emergency !== "null") {
-    console.log("\n====================通知====================\n", emergency)
-    message += "\n======通知======\n" + emergency + "\n"
-  }
-  // 获取控制参数
-    if (process.env.TK_SIGN_info&&process.env.TK_SIGN_info==="info"){
-    console.log(`截图报错日志发到群里！`)
-    } else{
-    console.log(`如果报错，增加变量TK_SIGN_info值为info可显示详细报错原因！`)
-    console.info = () => { }
+    // 获取API接口数据
+    apidata = await yxl[$.changeplan ? 'readapi1' : 'readapi']('TOKEN', TK_SIGN.id, TK_SIGN.sign)
+    // 获取紧急通知
+    emergency = apidata.notify
+    if (nowHours < 23 && emergency !== "null") {
+        console.log("\n====================通知====================\n", emergency)
+        message += "\n======通知======\n" + emergency + "\n"
     }
-  control = apidata.control
-  control = $.toObj(control,control)
-  if (control.qd === "off") {
-    console.log("\n店铺签到暂停！！")
-  }
-  // 获取签到token
-  token = apidata.dpqd
-  token = $.toObj(token,token)
-
-  console.info("获取签到数据：", token)
-  cookiesArr = await requireConfig()
-  // 零点签到
-  if (nowHours == 23 && nowMinutes > 55) {
-    if (control.qd === "on") {
-      //执行第一步，店铺签到
-      console.log(`即将零点，执行等待计时`)
-      //等到0点0分20秒
-      $.zerotime = await yxl.zerotime($.delay * 1000)
-      if ($.zerotime < 120000) {
-        console.log(`还未到零点，等待${$.zerotime / 1000}秒......`);
-        await $.wait($.zerotime)
-      }
-      console.log('零点店铺签到间隔:', interval + '秒!')
-      await firststep();
-      await yxl[$.changeplan ? 'count1' : 'count'](TK_SIGN.id,TK_SIGN.sign, 'requesttimes')
-    }
-    //其他时段签到                  
-  } else {
-    if (control.qd === "on") {
-      await secondstep()
-    }
-  }
-  //发送通知,0点不发送通知 
-  if (message) {
-    if (new Date().getHours() < 1) {
-      console.log('现在' + new Date().getHours() + `点,默认不推送！`)
-      if (notify_dpqd) {
-        console.log(`你设置了推送，开始发送通知！`)
-        await showMsg()
-      }
+    // 获取控制参数
+    if (process.env.TK_SIGN_info && process.env.TK_SIGN_info === "info") {
+        console.log(`截图报错日志发到群里！`)
     } else {
-      await showMsg()
+        console.log(`如果报错，增加变量TK_SIGN_info值为info可显示详细报错原因！`)
+        console.info = () => { }
     }
-  };
+    control = apidata.control
+    control = $.toObj(control, control)
+    if (control.qd === "off") {
+        console.log("\n店铺签到暂停！！")
+    }
+    // 获取签到token
+    token = apidata.dpqd
+    token = $.toObj(token, token)
+
+    console.info("获取签到数据：", token)
+    cookiesArr = await requireConfig()
+    // 零点签到
+    if (nowHours == 23 && nowMinutes > 55) {
+        if (control.qd === "on") {
+            //执行第一步，店铺签到
+            console.log(`即将零点，执行等待计时`)
+            //等到0点0分20秒
+            $.zerotime = await yxl.zerotime($.delay * 1000)
+            if ($.zerotime < 120000) {
+                console.log(`还未到零点，等待${$.zerotime / 1000}秒......`);
+                await $.wait($.zerotime)
+            }
+            console.log('零点店铺签到间隔:', interval + '秒!')
+            await firststep();
+            await yxl[$.changeplan ? 'count1' : 'count'](TK_SIGN.id, TK_SIGN.sign, 'requesttimes')
+        }
+        //其他时段签到                  
+    } else {
+        if (control.qd === "on") {
+            await secondstep()
+        }
+    }
+    //发送通知,0点不发送通知 
+    if (message) {
+        if (new Date().getHours() < 1) {
+            console.log('现在' + new Date().getHours() + `点,默认不推送！`)
+            if (notify_dpqd) {
+                console.log(`你设置了推送，开始发送通知！`)
+                await showMsg()
+            }
+        } else {
+            await showMsg()
+        }
+    };
 })()
-  .catch((e) => {
-    console.info('店铺签到（自动更新）error', e)
-  })
-  .finally(() => {
-    $.done();
-  })
+    .catch((e) => {
+        console.info('店铺签到（自动更新）error', e)
+    })
+    .finally(() => {
+        $.done();
+    })
 
 //零点店铺签到
 async function firststep() {
-  //按用户顺序签到
-  requesttimes++
-  for (let [index, value] of cookiesArr.entries()) {
-    try {
-      cookie = value
-      UserName = decodeURIComponent(cookie.match(/pt_pin=([^;]*)/)[1])
-      console.log(`\n开始【账号${index + 1}】${UserName}\n`)
-      message += `\n开始【账号${index + 1}】${UserName}\n`
-      await dpqd()
-      //await $.wait(100)
-    } catch (e) {
-      console.info('零点按用户顺序签到error', e)
+    //按用户顺序签到
+    requesttimes++
+    for (let [index, value] of cookiesArr.entries()) {
+        try {
+            $.UA = yxl.USER_AGENT
+            cookie = value
+            UserName = decodeURIComponent(cookie.match(/pt_pin=([^;]*)/)[1])
+            console.log(`\n开始【账号${index + 1}】${UserName}\n`)
+            message += `\n开始【账号${index + 1}】${UserName}\n`
+            await dpqd()
+            //await $.wait(100)
+        } catch (e) {
+            console.info('零点按用户顺序签到error', e)
+        }
     }
-  }
 }
 //零点之后店铺签到
 async function secondstep() {
-  //按用户顺序签到
-  for (let [index, value] of cookiesArr.entries()) {
-    try {
-      cookie = value
-      UserName = decodeURIComponent(cookie.match(/pt_pin=([^;]*)/)[1])
-      console.log(`\n开始【账号${index + 1}】${UserName}\n`)
-      message += `\n开始【账号${index + 1}】${UserName}\n`
-      await dpqd1()
-      //await $.wait(100)
-    } catch (e) {
-      console.info('零点之后按用户顺序签到error', e)
+    //按用户顺序签到
+    for (let [index, value] of cookiesArr.entries()) {
+        try {
+            $.UA = yxl.USER_AGENT
+            cookie = value
+            UserName = decodeURIComponent(cookie.match(/pt_pin=([^;]*)/)[1])
+            console.log(`\n开始【账号${index + 1}】${UserName}\n`)
+            message += `\n开始【账号${index + 1}】${UserName}\n`
+            await dpqd1()
+            //await $.wait(100)
+        } catch (e) {
+            console.info('零点之后按用户顺序签到error', e)
+        }
     }
-  }
 }
 //零点签到
 async function dpqd() {
-  for (var j = 0; j < token.length; j++) {
-    if (new Date().getHours() < 1) {
-      if (token[j].dday == 0) {
-        //console.log('今日无奖励，其他时段再签！！！');
-        continue
-      }
+    for (var j = 0; j < token.length; j++) {
+        if (new Date().getHours() < 1) {
+            if (token[j].dday == 0) {
+                //console.log('今日无奖励，其他时段再签！！！');
+                continue
+            }
+        }
+
+        await signCollectGift(token[j])
+        await $.wait(interval * 1000)
+        //if(j===3){await $.wait(30000)}
     }
-    getUB()
-    await signCollectGift(token[j])
-    await $.wait(interval * 1000)
-    //if(j===3){await $.wait(30000)}
-  }
 }
 //零点之后签到
 async function dpqd1() {
-  token.sort(function () { return Math.random() - 0.5 })
-  for (var j = 0; j < token.length; j++) {
-    logtemp = []
-    getUB()
-    logtemp.push(token[j].shopName + `:`)
-    message += token[j].shopName + `:`
-    await getvender(token[j].shopId)
-    await signCollect(token[j].token, token[j].activity)
-    await taskUrl(token[j].token, token[j].vender, token[j].activity)
-    console.log(logtemp.join('→'))
-    await $.wait(getRandomNumberByRange(10000, 20000))
-  }
+    token.sort(function () { return Math.random() - 0.5 })
+    for (var j = 0; j < token.length; j++) {
+        logtemp = []
+
+        logtemp.push(token[j].shopName + `:`)
+        message += token[j].shopName + `:`
+        await getvender(token[j].shopId)
+        await signCollect(token[j].token, token[j].activity)
+        await taskUrl(token[j].token, token[j].vender, token[j].activity)
+        console.log(logtemp.join('→'))
+        await $.wait(getRandomNumberByRange(10000, 20000))
+    }
 }
 //零点店铺签到
 function signCollectGift(token) {
-  return new Promise(resolve => {
-    const options = {
-      url: `${JD_API_HOST}&t=${Date.now()}&loginType=2&functionId=interact_center_shopSign_signCollectGift&body=%7B%22token%22%3A%22${token.token}%22%2C%22venderId%22%3A${token.vender}%2C%22activityId%22%3A${token.activity}%2C%22type%22%3A56%2C%22actionType%22%3A7%7D`,
-      headers: {
-        "accept": "accept",
-        "accept-encoding": "gzip, deflate",
-        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-        "cookie": cookie,
-        "referer": `https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=${token}&sceneval=2&jxsid=16105853541009626903&cu=true&utm_source=kong&utm_medium=jingfen&utm_campaign=t_1001280291_&utm_term=fa3f8f38c56f44e2b4bfc2f37bce9713`,
-        "User-Agent": $.UB
-        // "User-Agent": `Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40`
-      }
-    }
-    //proxy(options)
-    $.get(options, (err, resp, data) => {
-      console.info('零点店铺签到', err, resp, data)
-      try {
-        if (err) {
-          console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-          $.logErr(err);
-        } else {
-          data = $.toObj(data, data)
-          console.info(`${$.name}: \n`, data)
-          switch (String(data.code)) {
-            case '200':
-              let info = sollectGift(data.data)
-              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步√ ${token.shopName}${info}`);
-              message += `同步√ ${token.shopName}${info}\n`;
-              break;
-            case '-1':
-              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.echo)}`);
-              message += `同步× ${token.shopName + cutlog(data.echo)} \n`;
-              break;
-            case '402':
-              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
-              message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
-              break;
-            case '403030023':
-              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
-              message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
-              break;
-            case '407000007':
-              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
-              message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
-              break;
-            default:
-              console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName}${JSON.stringify(data)}`);
-              message += `同步× ${token.shopName} 未知错误，查看日志！\n`;
-          }
+    return new Promise(resolve => {
+        const options = {
+            url: `${JD_API_HOST}&t=${Date.now()}&loginType=2&functionId=interact_center_shopSign_signCollectGift&body=%7B%22token%22%3A%22${token.token}%22%2C%22venderId%22%3A${token.vender}%2C%22activityId%22%3A${token.activity}%2C%22type%22%3A56%2C%22actionType%22%3A7%7D`,
+            headers: {
+                "accept": "accept",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+                "cookie": cookie,
+                "referer": `https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=${token}&sceneval=2&jxsid=16105853541009626903&cu=true&utm_source=kong&utm_medium=jingfen&utm_campaign=t_1001280291_&utm_term=fa3f8f38c56f44e2b4bfc2f37bce9713`,
+                "User-Agent": $.UA
+                // "User-Agent": `Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40`
+            }
         }
-      } catch (e) {
-        console.info('零点店铺签到error', e)
-      } finally {
-        resolve(data);
-      }
+        //proxy(options)
+        $.get(options, (err, resp, data) => {
+            console.info('零点店铺签到', err, resp, data)
+            try {
+                if (err) {
+                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
+                    $.logErr(err);
+                } else {
+                    data = $.toObj(data, data)
+                    console.info(`${$.name}: \n`, data)
+                    switch (String(data.code)) {
+                        case '200':
+                            let info = sollectGift(data.data)
+                            console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步√ ${token.shopName}${info}`);
+                            message += `同步√ ${token.shopName}${info}\n`;
+                            break;
+                        case '-1':
+                            console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.echo)}`);
+                            message += `同步× ${token.shopName + cutlog(data.echo)} \n`;
+                            break;
+                        case '402':
+                            console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
+                            message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
+                            break;
+                        case '403030023':
+                            console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
+                            message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
+                            break;
+                        case '407000007':
+                            console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName + cutlog(data.msg)}`);
+                            message += `同步× ${token.shopName + cutlog(data.msg)} \n`;
+                            break;
+                        default:
+                            console.log(new Date().Format("hh:mm:ss.S"), `——(${data.code})同步× ${token.shopName}${JSON.stringify(data)}`);
+                            message += `同步× ${token.shopName} 未知错误，查看日志！\n`;
+                    }
+                }
+            } catch (e) {
+                console.info('零点店铺签到error', e)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 function sollectGift(data) {
-  let info = ''
-  let reward, discount, type, status
-  for (let i = 0; i < data.length; i++) {
-    data[i].level == 0 ? info += ":日签👉" : info += ":连签👉" + data[i].level + "天,"
-    for (let j = 0; j < data[i].prizeList.length; j++) {
-      discount = data[i].prizeList[j].discount
-      type = data[i].prizeList[j].type
-      status = data[i].prizeList[j].status
-      if (status == 2) {
-        type == 1 ? reward = '优惠券' : reward = reward
-        type == 4 ? reward = '京豆' : reward = reward
-        type == 6 ? reward = '积分' : reward = reward
-        type == 9 ? reward = '满减券' : reward = reward
-        type == 10 ? reward = 'e卡' : reward = reward
-        type == 14 ? reward = '红包' : reward = reward
-        info += discount + reward + ";"
-      }
+    let info = ''
+    let reward, discount, type, status
+    for (let i = 0; i < data.length; i++) {
+        data[i].level == 0 ? info += ":日签👉" : info += ":连签👉" + data[i].level + "天,"
+        for (let j = 0; j < data[i].prizeList.length; j++) {
+            discount = data[i].prizeList[j].discount
+            type = data[i].prizeList[j].type
+            status = data[i].prizeList[j].status
+            if (status == 2) {
+                type == 1 ? reward = '优惠券' : reward = reward
+                type == 4 ? reward = '京豆' : reward = reward
+                type == 6 ? reward = '积分' : reward = reward
+                type == 9 ? reward = '满减券' : reward = reward
+                type == 10 ? reward = 'e卡' : reward = reward
+                type == 14 ? reward = '红包' : reward = reward
+                info += discount + reward + ";"
+            }
+        }
     }
-  }
-  return info
+    return info
 }
 //打开首页
 async function getvender(Id) {
-  try {
-    let { status } = await axios.get(`https://shop.m.jd.com/shop/home?shopId=${Id}`)
-    //console.log(status)
-    if (status === 200) {
-      logtemp.push('逛店铺')
-      message += '逛店铺;'
-    } else {
-      logtemp.push('IP黑名单')
-      message += 'IP黑名单;'
+    try {
+        let { status } = await axios.get(`https://shop.m.jd.com/shop/home?shopId=${Id}`)
+        //console.log(status)
+        if (status === 200) {
+            logtemp.push('逛店铺')
+            message += '逛店铺;'
+        } else {
+            logtemp.push('IP黑名单')
+            message += 'IP黑名单;'
+        }
+    } catch (e) {
+        console.info('打开首页error', e)
     }
-  } catch (e) {
-    console.info('打开首页error', e)
-  }
 }
 //零点之后店铺签到
 function signCollect(token, activity) {
-  return new Promise(resolve => {
-    const options = {
-      url: `${JD_API_HOST}&t=${Date.now()}&loginType=2&functionId=interact_center_shopSign_signCollectGift&body={%22token%22:%22${token}%22,%22venderId%22:688200,%22activityId%22:${activity},%22type%22:56,%22actionType%22:7}&jsonp=jsonp1004`,
-      headers: {
-        "accept": "accept",
-        "accept-encoding": "gzip, deflate",
-        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-        "cookie": cookie,
-        "referer": `https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=${token}&sceneval=2&jxsid=16105853541009626903&cu=true&utm_source=kong&utm_medium=jingfen&utm_campaign=t_1001280291_&utm_term=fa3f8f38c56f44e2b4bfc2f37bce9713`,
-        "User-Agent": $.UB
-        // "User-Agent": `Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40`
-      }
-    }
-    //proxy(options)
-    $.get(options, (err, resp, data) => {
-      console.info('零点之后店铺签到', err, resp, data)
-      try {
-        if (err) {
-          console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-          $.logErr(err);
-        } else {
-          //console.log(data)
-          data = JSON.parse(/{(.*)}/g.exec(data)[0])
-          if (data.success) {
-            logtemp.push(`签到`)
-            message += `签到;`
-          } else {
-            logtemp.push(cutlog(data.msg))
-            message += cutlog(data.msg)
-          }
+    return new Promise(resolve => {
+        const options = {
+            url: `${JD_API_HOST}&t=${Date.now()}&loginType=2&functionId=interact_center_shopSign_signCollectGift&body={%22token%22:%22${token}%22,%22venderId%22:688200,%22activityId%22:${activity},%22type%22:56,%22actionType%22:7}&jsonp=jsonp1004`,
+            headers: {
+                "accept": "accept",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+                "cookie": cookie,
+                "referer": `https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=${token}&sceneval=2&jxsid=16105853541009626903&cu=true&utm_source=kong&utm_medium=jingfen&utm_campaign=t_1001280291_&utm_term=fa3f8f38c56f44e2b4bfc2f37bce9713`,
+                "User-Agent": $.UA
+                // "User-Agent": `Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40`
+            }
         }
-      } catch (e) {
-        console.info('零点之后店铺签到', e)
-      } finally {
-        resolve(data);
-      }
+        //proxy(options)
+        $.get(options, (err, resp, data) => {
+            console.info('零点之后店铺签到', err, resp, data)
+            try {
+                if (err) {
+                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
+                    $.logErr(err);
+                } else {
+                    //console.log(data)
+                    data = JSON.parse(/{(.*)}/g.exec(data)[0])
+                    if (data.success) {
+                        logtemp.push(`签到`)
+                        message += `签到;`
+                    } else {
+                        logtemp.push(cutlog(data.msg))
+                        message += cutlog(data.msg)
+                    }
+                }
+            } catch (e) {
+                console.info('零点之后店铺签到', e)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 //店铺获取签到信息
 function taskUrl(token, venderId, activityId) {
-  return new Promise(resolve => {
-    const options = {
-      url: `${JD_API_HOST}&t=${Date.now()}&loginType=2&functionId=interact_center_shopSign_getSignRecord&body={%22token%22:%22${token}%22,%22venderId%22:${venderId},%22activityId%22:${activityId},%22type%22:56}&jsonp=jsonp1006`,
-      headers: {
-        "accept": "application/json",
-        "accept-encoding": "gzip, deflate, br",
-        "accept-language": "zh-CN,zh;q=0.9",
-        "cookie": cookie,
-        "referer": `https://h5.m.jd.com/`,
-        "User-Agent": $.UB
-        // "user-agent": `Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40`
-      }
-    }
-    $.get(options, (err, resp, data) => {
-      console.info('店铺获取签到信息', err, resp, data)
-      try {
-        if (err) {
-          console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-          $.logErr(err);
-        } else {
-          //console.log(data)
-          data = JSON.parse(/{(.*)}/g.exec(data)[0])
-          if (data.code === 200) {
-            logtemp.push('第' + data.data.days + '天。')
-            message += `第` + data.data.days + `天。\n`
-          }
+    return new Promise(resolve => {
+        const options = {
+            url: `${JD_API_HOST}&t=${Date.now()}&loginType=2&functionId=interact_center_shopSign_getSignRecord&body={%22token%22:%22${token}%22,%22venderId%22:${venderId},%22activityId%22:${activityId},%22type%22:56}&jsonp=jsonp1006`,
+            headers: {
+                "accept": "application/json",
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "zh-CN,zh;q=0.9",
+                "cookie": cookie,
+                "referer": `https://h5.m.jd.com/`,
+                "User-Agent": $.UA
+                // "user-agent": `Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40`
+            }
         }
-      } catch (e) {
-        console.info('店铺获取签到信息', e)
-      } finally {
-        resolve(data);
-      }
+        $.get(options, (err, resp, data) => {
+            console.info('店铺获取签到信息', err, resp, data)
+            try {
+                if (err) {
+                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
+                    $.logErr(err);
+                } else {
+                    //console.log(data)
+                    data = JSON.parse(/{(.*)}/g.exec(data)[0])
+                    if (data.code === 200) {
+                        logtemp.push('第' + data.data.days + '天。')
+                        message += `第` + data.data.days + `天。\n`
+                    }
+                }
+            } catch (e) {
+                console.info('店铺获取签到信息', e)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 
 async function requireConfig(check = false) {
-  let cookiesArr = []
-  const jdCookieNode = require('./jdCookie.js')
-  let keys = Object.keys(jdCookieNode)
-  for (let i = 0; i < keys.length; i++) {
-    let cookie = jdCookieNode[keys[i]]
-    if (!check) {
-      cookiesArr.push(cookie)
-    } else {
-      if (await checkCookie(cookie)) {
-        cookiesArr.push(cookie)
-      } else {
-        console.log('Cookie失效', username)
-        await sendNotify('Cookie失效', '【京东账号】')
-      }
+    let cookiesArr = []
+    const jdCookieNode = require('./jdCookie.js')
+    let keys = Object.keys(jdCookieNode)
+    for (let i = 0; i < keys.length; i++) {
+        let cookie = jdCookieNode[keys[i]]
+        if (!check) {
+            cookiesArr.push(cookie)
+        } else {
+            if (await checkCookie(cookie)) {
+                cookiesArr.push(cookie)
+            } else {
+                console.log('Cookie失效', username)
+                await sendNotify('Cookie失效', '【京东账号】')
+            }
+        }
     }
-  }
-  console.log(`共${cookiesArr.length}个京东账号\n`)
-  return cookiesArr
+    console.log(`共${cookiesArr.length}个京东账号\n`)
+    return cookiesArr
 }
 function getRandomNumberByRange(start, end) {
-  return Math.floor(Math.random() * (end - start) + start)
+    return Math.floor(Math.random() * (end - start) + start)
 }
 // 以上都是抄来的，我也不知道干啥用的，不要瞎改就对了
 
 //定义通知函数
 async function showMsg() {
-  if ($.isNode()) {
-    $.msg($.name, '', `${message}`);
-    await notify.sendNotify(`${$.name}`, `${message}`);
-  }
+    if ($.isNode()) {
+        $.msg($.name, '', `${message}`);
+        await notify.sendNotify(`${$.name}`, `${message}`);
+    }
 }
 //精简log
 function cutlog(log) {
-  if (log) {
-    log = log.replace("对不起，你已经参加过该活动啦，去看看别的吧", " 已签");
-    log = log.replace("当前不存在有效的活动", " 被撸空了");
-  }
-  return log
-}
-//随机UA
-function randomString(e) {
-  e = e || 32;
-  let t = "abcdef0123456789", a = t.length, n = "";
-  for (i = 0; i < e; i++)
-    n += t.charAt(Math.floor(Math.random() * a));
-  return n
-}
-function getUB() {
-  $.UB = `jdapp;iPhone;10.2.2;13.1.2;${randomString(40)};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460611;appBuild/167863;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`
+    if (log) {
+        log = log.replace("对不起，你已经参加过该活动啦，去看看别的吧", " 已签");
+        log = log.replace("当前不存在有效的活动", " 被撸空了");
+    }
+    return log
 }
