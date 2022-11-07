@@ -51,7 +51,7 @@ if ($.isNode()) {
 } else {
     cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || '[]').map(item => item.cookie)].filter(item => !!item)
 }
-
+helpCookiesArr = $.toObj($.toStr(cookiesArr,cookiesArr))
 $.dpqd_help_list = $.getdata("dpqd_help_list") || {}
 $.dpqd_help_list = $.toObj($.dpqd_help_list,$.dpqd_help_list)
 if(typeof $.dpqd_help_list != "object"){
@@ -209,12 +209,17 @@ $.PROXY_LIST=[]
 
 async function run() {
     let help = ''
+    console.info('开始获取助力信息！')
     help = await getwbzlm()
+    console.info('获取助力信息：',help)
     try {
+        console.info('助力cookie数量:',helpCookiesArr.length)
         for(let i = 0; i < helpCookiesArr.length; i++) {
-            $.UA=yxl.USER_AGENT//await getUA()
+            $.UA=yxl.USER_AGENT
+            console.info('UA：',$.UA)
             if(help && help.inviteCode && help.inviter && !$.hotFlag){
                 if(help.helpNumber < $.maxHelpNumber){
+                    console.info('开始助力！')
                     await helpProcess(help)
                 }
                 if(help.msg){
@@ -489,7 +494,6 @@ async function getwbzlm(){
         assist_full: false,
         assist_out: assist_out,
         UserName,
-        cookie: 'cookie',
         msg,
         helpCount: 0,
         helpNumber: helpNumber
@@ -575,6 +579,7 @@ async function requestApiN(cookie, wbh5st) {
     }
 }
 async function getLogin(UserName, ck) {
+     console.info('开始检测cookie是否有效！')
     return new Promise(resolve => {
         let options = {
             url: `https://me-api.jd.com/user_new/info/GetJDUserInfoUnion`,
