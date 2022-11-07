@@ -16,7 +16,6 @@ if(process.env.TK_SIGN_method&&process.env.TK_SIGN_method=='planb'){
 }else{
     $.changeplan=false
 }
-let whitelist = '' // 白名单 用&隔开 pin值(填中文
 let blacklist = '' // 黑名单 用&隔开 pin值(填中文
 let nowHours = new Date().getHours(),
     codestemp='',
@@ -144,7 +143,7 @@ $.PROXY_LIST=[]
 
         $.sendNotifyStatus = false // 发送消息 true 为发送 false 不发送 默认 true
         $.maxHelpNumber = $.apidata.maxtime // 最大助力成功次数
-        $.maxHelpErrCount = $.apidata.maxtime // 连续"活动太火爆了，请稍后重试"及访问京东API失败次数超过此值则停止助力
+        $.maxHelpErrCount = 50 // 连续"活动太火爆了，请稍后重试"及访问京东API失败次数超过此值则停止助力
 
         if (!cookiesArr[0]) {
             $.msg($.name, '【提示】请先获取cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {
@@ -152,8 +151,6 @@ $.PROXY_LIST=[]
             })
             return
         }
-        //$.token = $.apidata.jdapitoken||''// token
-        $.whitelist = process.env.dpqd_wb_whitelist || whitelist // 白名单
         $.blacklist = process.env.dpqd_wb_blacklist || blacklist // 黑名单
         $.sendNotifyStatus = process.env.dpqd_wb_sendNotifyStatus || $.sendNotifyStatus + '' || true // 是否发送消息
 
