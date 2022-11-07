@@ -78,7 +78,7 @@ $.PROXY_LIST=[]
         console.log('数据都清空了，别跑了！等零点再跑！')
         return
     }
-    await $.wait(yxl.randomNumber(1000, 5000))
+    await $.wait(yxl.randomNumber(1000, 10000))
     $.apidata = await yxl[$.changeplan?'readapi1':'readapi']('TOKEN',$.TK_SIGN.id,$.TK_SIGN.sign)
 
     $.apidata=$.toObj($.apidata,$.apidata)
