@@ -1,8 +1,7 @@
 /**
  * cron: 20 0 0 * * *
 */
-console.log('当前版本号', '20221105-v1.0，你自己玩fa财da赢jia的话就把这个脚本禁用！')
-console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
+console.log('当前版本号', '20221105-v1.0')
 const yxl = require('./depend/yxl')
 const $ = new yxl.Env('fa财da赢jia助力（店铺签到专用）');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -131,7 +130,6 @@ let helpinfo = {};
     } else {
         console.log('无助力码！！\n')
     }
-    await notify.sendNotify(`新增助力脚本，自己玩这个的就把这个脚本禁用！`);
 })()
     .catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
