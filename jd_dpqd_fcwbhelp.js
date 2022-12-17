@@ -2,7 +2,7 @@
  * cron: 0 0,1,9 * * *
 */
 
-console.log('当前版本号','20221107-v1.0')
+console.log('当前版本号','20221217-v1.0')
 console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
 const yxl = require('./depend/yxl')
 const $ = new yxl.Env('挖宝助力（店铺签到专用）');
@@ -418,7 +418,7 @@ async function helpUserN(help, tool) {
             if(!$.toStatus||!$.jdStatus){
                 console.log('    🩸getproxy:','http://'+PROXY_HOST+':'+PROXY_PORT)
             }
-            h5st_res = await yxl[$.changeplan?'geth5st1':'geth5st']($.TK_SIGN.id,$.apidata.appId,'happyDigHelp',body,$.UA,tool.UserName,$.h5stTK,$.toStatus,PROXY_HOST,PROXY_PORT)
+            h5st_res = await yxl[$.changeplan?'geth5st1':'geth5st']($.TK_SIGN.id,$.apidata.appId,'happyDigHelp',body,tool.UserName,$.h5stTK,$.toStatus,PROXY_HOST,PROXY_PORT)
             if(h5st_res && typeof h5st_res == 'object' && h5st_res.code == 200 && h5st_res.body){
                 wbh5st = h5st_res.body
                 // console.log(res)
@@ -546,15 +546,19 @@ async function requestApiG(functionId, cookie, body = {}, t = Date.now(), h5st =
     }
 }
 async function requestApiN(cookie, wbh5st) {
+    $.randomNum = parseInt(Math.random() * 888888 + 111111, 10);
+    let url = ` https://api.m.jd.com/?${wbh5st}&cthr=1&uuid=9366134603335346-2356564626${$.randomNum}&build=&screen=&networkType=&d_brand=&d_model=&lang=zh_CN&osVersion=&partner=&eid=`;
     try{
         return new Promise(async resolve => {
             let options = {
-                url: `https://api.m.jd.com/?${wbh5st}`,
+                url: url,
                 headers: {
                     'Host': 'api.m.jd.com',
                     'Origin': 'https://bnzf.jd.com',
-                    'User-Agent': $.UA,
-                    'Cookie': cookie
+                    'User-Agent': `jdltapp;iPhone;3.8.22;${Math.ceil(Math.random() * 4 + 10)}.${Math.ceil(Math.random() * 4)};${randomString(40)};Mozilla/5.0 (Linux; Android 10; PCCM00 Build/QKQ1.191021.002; wv)AppleWebKit/537.36 (KHTML like Gecko) Version/4.0 Chrome/102.0.5005.125MobileSafari/537.36;`,
+                    'Referer': "https://bnzf.jd.com/",
+                    'Cookie': cookie,
+                    'x-requested-with': "com.jd.jdlite"
                 }
             }
             $.get(options, async (err, resp, data) => {
@@ -695,4 +699,11 @@ function jsonParse(str) {
             return []
         }
     }
+}
+function randomString(e) {
+    e = e || 32
+    let t = 'abcdef0123456789', a = t.length, n = ''
+    for (i = 0; i < e; i++)
+        n += t.charAt(Math.floor(Math.random() * a))
+    return n
 }
