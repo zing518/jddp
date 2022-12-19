@@ -62,7 +62,7 @@ if($.dpqd_help_list[$.time("MM_dd")]){
     $.dpqd_help = $.dpqd_help_list[$.time("MM_dd")]
 }
 
-
+$.userhot = false
 $.toStatus = false
 $.jdStatus = true
 $.hotFlag = false
@@ -168,12 +168,6 @@ $.PROXY_LIST=[]
         }
         
         $.sendNotifyStatus = process.env.dpqd_wb_sendNotifyStatus || $.sendNotifyStatus + '' || true // 是否发送消息
-
-        if($.openRed+"" == 'true'){
-            $.openRed = true
-        }else{
-            $.openRed = false
-        }
         console.log(`\n------ 变量设置 ------`)
         console.log(`${$.sendNotifyStatus+'' == 'true' ? '发送' : '不发送'}消息📜`)
         // ===========================================================================
@@ -241,7 +235,15 @@ async function run() {
             if($.hotFlag){
                 break
             }
-        }  
+        }
+        //挖宝黑名单清空并写入
+        if ($.userhot && $.apidata.wbblacklist == 'clean') {
+            await yxl[$.changeplan ? 'count1' : 'count']($.TK_SIGN.id, $.TK_SIGN.sign, 'userhot', 1)
+            $.dpqd_black_list = {}
+            $.dpqd_black_list["wabao"] = $.errMsgPin
+            $.setdata($.dpqd_black_list, 'dpqd_black_list')
+        }
+        //挖宝黑名单覆盖
     } catch (e) {
         console.log(e)
     }
@@ -335,13 +337,6 @@ async function helpProcess(help) {
         $.dpqd_help_list[$.time("MM_dd")] = $.dpqd_help
         $.setdata($.dpqd_help_list, 'dpqd_help_list')
     }
-    //挖宝黑名单清空并写入
-    if($.apidata.wbblacklist=='clean'){
-        $.dpqd_black_list = {}
-        $.dpqd_black_list["wabao"] = $.errMsgPin
-        $.setdata($.dpqd_black_list, 'dpqd_black_list')
-    }
-//挖宝黑名单覆盖
 }
 async function helpUserG(help, tool) {
     try{
@@ -353,7 +348,7 @@ async function helpUserG(help, tool) {
             appid: 'activities_platform',
             body: $.toStr(body_in, body_in),
             client: 'ios',
-            clientVersion: '3.9.0',
+            clientVersion: '4.5.0',
             functionId: "happyDigHelp",
             t: timestamp.toString()
         }
@@ -405,6 +400,7 @@ async function helpUserG(help, tool) {
                     $.totalhelptimes--
                 } else if (/^活动太火爆了，请稍后重试$/.test(desc)) {
                     help.helpErrCount++
+                    $.userhot = true
                     desc = '账号火爆或者算法失效'
                     $.errMsgPin.push(tool.UserName)
                     if(help.helpErrCount >= $.maxHelpErrCount){
@@ -475,6 +471,7 @@ async function helpUserN(help, tool) {
                     help.helpErrCount = 0
                     $.totalhelptimes--
                 } else if (/^活动太火爆了，请稍后重试$/.test(desc)) {
+                    $.userhot = true
                     help.helpErrCount++
                     desc = '账号火爆或者算法失效'
                     $.errMsgPin.push(tool.UserName)
@@ -525,8 +522,8 @@ async function requestApiG(functionId, cookie, body = {}, t = Date.now(), h5st =
         let client = "H5"
         $.clientVersion = ""
         if(functionId == 'happyDigHelp'){
-            // $.clientVersion = $.UA.split(';')[2]
-            $.clientVersion = "3.9.0"
+            $.clientVersion = $.UA.split(';')[2]
+            // $.clientVersion = "3.9.0"
             client = "ios"
         }
         return new Promise(async resolve => {
@@ -534,7 +531,7 @@ async function requestApiG(functionId, cookie, body = {}, t = Date.now(), h5st =
                 url: `https://api.m.jd.com/?functionId=${functionId}&body=${encodeURIComponent($.toStr(body))}&t=${t}&appid=activities_platform&client=${client}&clientVersion=${$.clientVersion ? $.clientVersion : '1.2.0'}${h5st ? '&h5st=' + h5st : ''}`,
                 headers: {
                     "Accept": "application/json, text/plain, */*",
-                    "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+                    "Accept-Language": "zh-cn",
                     "Accept-Encoding": "gzip, deflate, br",
                     "Cookie": ck,
                     "origin": "https://bnzf.jd.com",
