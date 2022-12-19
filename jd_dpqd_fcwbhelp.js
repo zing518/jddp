@@ -51,7 +51,7 @@ if ($.isNode()) {
 } else {
     cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || '[]').map(item => item.cookie)].filter(item => !!item)
 }
-helpCookiesArr = $.toObj($.toStr(cookiesArr,cookiesArr))
+
 $.dpqd_help_list = $.getdata("dpqd_help_list") || {}
 $.dpqd_help_list = $.toObj($.dpqd_help_list,$.dpqd_help_list)
 if(typeof $.dpqd_help_list != "object"){
@@ -61,6 +61,7 @@ $.dpqd_help = {}
 if($.dpqd_help_list[$.time("MM_dd")]){
     $.dpqd_help = $.dpqd_help_list[$.time("MM_dd")]
 }
+
 
 $.toStatus = false
 $.jdStatus = true
@@ -85,6 +86,19 @@ $.PROXY_LIST=[]
         $.apidata = []
         return
     }
+    //读取黑名单，不写入
+    $.blacklist = ''
+    if ($.apidata.wbblacklist == 'retain') {
+        $.dpqd_black_list = $.getdata("dpqd_black_list") || {}
+        $.dpqd_black_list = $.toObj($.dpqd_black_list, $.dpqd_black_list)
+        if (typeof $.dpqd_black_list != "object") {
+            $.dpqd_black_list = {}
+        }
+        if ($.dpqd_black_list["wabao"]) {
+            $.blacklist = $.dpqd_black_list["wabao"].join('&')
+        }
+    }
+//读取黑名单
     if (process.env.TK_SIGN_info&&process.env.TK_SIGN_info==="info"){
         console.log(`截图报错日志发到群里！`)
     } else{
@@ -144,14 +158,15 @@ $.PROXY_LIST=[]
         $.sendNotifyStatus = false // 发送消息 true 为发送 false 不发送 默认 true
         $.maxHelpNumber = $.apidata.maxtime // 最大助力成功次数
         $.maxHelpErrCount = 50 // 连续"活动太火爆了，请稍后重试"及访问京东API失败次数超过此值则停止助力
-
+        await getBlacklist()
+        helpCookiesArr = $.toObj($.toStr(cookiesArr,cookiesArr))
         if (!cookiesArr[0]) {
             $.msg($.name, '【提示】请先获取cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {
                 'open-url': 'https://bean.m.jd.com/'
             })
             return
         }
-        $.blacklist = process.env.dpqd_wb_blacklist || blacklist // 黑名单
+        
         $.sendNotifyStatus = process.env.dpqd_wb_sendNotifyStatus || $.sendNotifyStatus + '' || true // 是否发送消息
 
         if($.openRed+"" == 'true'){
@@ -162,9 +177,7 @@ $.PROXY_LIST=[]
         console.log(`\n------ 变量设置 ------`)
         console.log(`${$.sendNotifyStatus+'' == 'true' ? '发送' : '不发送'}消息📜`)
         // ===========================================================================
-        
-
-        getBlacklist()
+    
         console.log("\n开始获取用于助力的账号列表")
         for (let i in cookiesArr) {
             // 将用于助力的账号加入列表
@@ -191,9 +204,8 @@ $.PROXY_LIST=[]
     } 
 //发送消息
     if(allMessage){
-        if($.errMsgPin.length > 0){
-            let errmsg = `以下账号可能是火爆，请加入黑名单不然每次都消耗次数\ndpqd_wb_blacklist="${$.errMsgPin.join('&')}"`
-            allMessage += "\n"+errmsg
+        if($.errMsgPin.length > 0&&$.apidata.wbblacklist=='clean'){
+            console.log(`以下账号可能是火爆，已加入黑名单缓存\ndpqd_wb_blacklist="${$.errMsgPin.join('&')}"`)
         }
         $.msg($.name, '', `${allMessage}`)
         if ($.isNode() && sendFlag && $.sendNotifyStatus+'' == 'true'){
@@ -323,6 +335,13 @@ async function helpProcess(help) {
         $.dpqd_help_list[$.time("MM_dd")] = $.dpqd_help
         $.setdata($.dpqd_help_list, 'dpqd_help_list')
     }
+    //挖宝黑名单清空并写入
+    if($.apidata.wbblacklist=='clean'){
+        $.dpqd_black_list = {}
+        $.dpqd_black_list["wabao"] = $.errMsgPin
+        $.setdata($.dpqd_black_list, 'dpqd_black_list')
+    }
+//挖宝黑名单覆盖
 }
 async function helpUserG(help, tool) {
     try{
@@ -663,9 +682,9 @@ async function checkserver(url) {
 /**
  * 黑名单
  */
- function getBlacklist(){
+ async function getBlacklist(){
     if($.blacklist == '') return
-    console.log('------- 黑名单 -------')
+    console.log('------- 黑名单(对只有一个账号且也是黑号无效) -------')
     const result = Array.from(new Set($.blacklist.split('&'))) // 数组去重
     console.log(`${result.join('\n')}`)
     let blacklistArr = result
