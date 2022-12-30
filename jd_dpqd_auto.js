@@ -91,7 +91,7 @@ if (process.env.TK_SIGN_method && process.env.TK_SIGN_method == 'planb') {
         console.log("\n店铺签到暂停！！")
     }
     // 获取签到token
-    token = apidata.dpqd
+    token = apidata.dptk
     token = $.toObj(token, token)
 
     console.info("获取签到数据：", token)
