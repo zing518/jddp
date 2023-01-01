@@ -2,7 +2,7 @@
  * cron: 0 0,1,9 * * *
 */
 
-console.log('当前版本号','20221217-v1.0')
+console.log('当前版本号', '20230101-v1.0')
 console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
 const yxl = require('./depend/yxl')
 const $ = new yxl.Env('挖宝助力（店铺签到专用）');
@@ -221,7 +221,7 @@ async function run() {
     try {
         console.info('助力cookie数量:',helpCookiesArr.length)
         for(let i = 0; i < helpCookiesArr.length; i++) {
-            $.UA=yxl.USER_AGENT
+            $.UA=yxl.JS_USER_AGENT
             console.info('UA：',$.UA)
             if(help && help.inviteCode && help.inviter && !$.hotFlag){
                 if(help.helpNumber < $.maxHelpNumber){
