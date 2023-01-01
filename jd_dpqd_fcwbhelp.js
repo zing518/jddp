@@ -142,6 +142,7 @@ $.PROXY_LIST=[]
 
     $.h5stTK=$.apidata.h5stTK
     $.h5stTK=$.toObj($.h5stTK,$.h5stTK)
+    console.info('h5stTK：',$.h5stTK)
 // 获取紧急通知
     if($.apidata.notify!=='null'){
         console.log("\n=========通知=========\n",$.apidata.notify)
@@ -221,7 +222,8 @@ async function run() {
     try {
         console.info('助力cookie数量:',helpCookiesArr.length)
         for(let i = 0; i < helpCookiesArr.length; i++) {
-            $.UA=yxl.JS_USER_AGENT
+            //$.UA=yxl.JS_USER_AGENT
+            $.UA=`jdltapp;iPhone;3.8.22;${Math.ceil(Math.random() * 4 + 10)}.${Math.ceil(Math.random() * 4)};${randomString(40)};Mozilla/5.0 (Linux; Android 10; PCCM00 Build/QKQ1.191021.002; wv)AppleWebKit/537.36 (KHTML like Gecko) Version/4.0 Chrome/102.0.5005.125MobileSafari/537.36;`
             console.info('UA：',$.UA)
             if(help && help.inviteCode && help.inviter && !$.hotFlag){
                 if(help.helpNumber < $.maxHelpNumber){
@@ -433,7 +435,7 @@ async function helpUserN(help, tool) {
             if(!$.toStatus||!$.jdStatus){
                 console.log('    🩸getproxy:','http://'+PROXY_HOST+':'+PROXY_PORT)
             }
-            h5st_res = await yxl[$.changeplan?'geth5st1':'geth5st']($.TK_SIGN.id,$.apidata.appId,'happyDigHelp',body,tool.UserName,$.h5stTK,$.toStatus,PROXY_HOST,PROXY_PORT)
+            h5st_res = await yxl[$.changeplan?'geth5st1':'geth5st']($.TK_SIGN.id,$.apidata.appId,'happyDigHelp',body,$.UA,tool.UserName,$.h5stTK,$.toStatus,PROXY_HOST,PROXY_PORT)
             if(h5st_res && typeof h5st_res == 'object' && h5st_res.code == 200 && h5st_res.body){
                 wbh5st = h5st_res.body
                 // console.log(res)
@@ -571,7 +573,7 @@ async function requestApiN(cookie, wbh5st) {
                 headers: {
                     'Host': 'api.m.jd.com',
                     'Origin': 'https://bnzf.jd.com',
-                    'User-Agent': `jdltapp;iPhone;3.8.22;${Math.ceil(Math.random() * 4 + 10)}.${Math.ceil(Math.random() * 4)};${randomString(40)};Mozilla/5.0 (Linux; Android 10; PCCM00 Build/QKQ1.191021.002; wv)AppleWebKit/537.36 (KHTML like Gecko) Version/4.0 Chrome/102.0.5005.125MobileSafari/537.36;`,
+                    'User-Agent': $.UA,
                     'Referer': "https://bnzf.jd.com/",
                     'Cookie': cookie,
                     'x-requested-with': "com.jd.jdlite"
