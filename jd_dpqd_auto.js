@@ -7,10 +7,11 @@
  * 环境变量名称：TK_SIGN，环境变量值：{"id":*,"sign":"************************"}
  * 用上面的环境变量报读取出错则拆分为TK_SIGN_ID和TK_SIGN_SIGN两个变量，对应上面｛｝里的两个值，若不报错则忽略此行。
 */
-console.log('当前版本号', '20221230-v1.0')
-console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次，还不行就用旧脚本！')
+console.log('当前版本号', '20230107-v1.0')
+console.log('若脚本报错则增加变量TK_SIGN_method为planb再试一次！')
 console.log('增加变量TK_SIGN_WAIT，控制零点店铺签到间隔，单位是秒，不是毫秒。默认是1s。')
 console.log('增加变量TK_SIGN_delay，控制零点签到开始时间，单位是秒，不是毫秒。默认是-0.1s。\n主要是修正网络延迟，带-表示在0.0.0秒前0.1s开始。')
+console.log('增加变量TK_SIGN_WAIT1，控制其他时段店铺签到间隔，单位是秒，不是毫秒。默认是10s，随机延迟10-20s。你设置成2，就是随机2-4s。')
 const yxl = require('./depend/yxl')
 let TK_SIGN
 if (process.env.TK_SIGN) {
@@ -26,6 +27,10 @@ if (!TK_SIGN) {
 let interval = 1
 if (process.env.TK_SIGN_WAIT && process.env.TK_SIGN_WAIT < 5) {
     interval = process.env.TK_SIGN_WAIT
+}
+let interval1 = 10
+if (process.env.TK_SIGN_WAIT1 && process.env.TK_SIGN_WAIT1 < 10) {
+    interval1 = process.env.TK_SIGN_WAIT1
 }
 
 const $ = new yxl.Env('店铺签到（自动更新）');
@@ -45,7 +50,7 @@ let notify_dpqd = false
 let emergency = []
 let apidata
 let control
-let requesttimes = 0
+
 if (process.env.NOTIFY_DPQD) { notify_dpqd = process.env.NOTIFY_DPQD } //凌晨签到是否通知，变量设置true则通知，默认不通知，估计影响签到网速，未验证。22点签到通知结果。
 //时间格式
 Date.prototype.Format = function (fmt) { //author: meizz
@@ -199,7 +204,7 @@ async function dpqd1() {
         await signCollect(token[j].token, token[j].activity)
         await taskUrl(token[j].token, token[j].vender, token[j].activity)
         console.log(logtemp.join('→'))
-        await $.wait(getRandomNumberByRange(10000, 20000))
+        await $.wait(getRandomNumberByRange(interval1*1000, interval1*2000))
     }
 }
 //零点店铺签到
