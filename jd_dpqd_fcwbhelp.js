@@ -157,7 +157,7 @@ $.PROXY_LIST=[]
         console.log(`该你助力了,开始助力！`)
 
         $.sendNotifyStatus = false // 发送消息 true 为发送 false 不发送 默认 true
-        $.maxHelpNumber = $.apidata.maxtime // 最大助力成功次数
+        $.maxHelpNumber = $.apidata.maxtime*1 // 最大助力成功次数
         $.maxHelpErrCount = 50 // 连续"活动太火爆了，请稍后重试"及访问京东API失败次数超过此值则停止助力
         await getBlacklist()
         helpCookiesArr = $.toObj($.toStr(cookiesArr,cookiesArr))
@@ -184,15 +184,17 @@ $.PROXY_LIST=[]
         $.updateHelpData = false
         await run()
         // await $.wait(2000)
-        console.log('本次助力次数：',$.totalhelptimes)
+        if (new Date().getHours() == 0) {
+            console.log('本次助力次数：',$.totalhelptimes)
         await yxl[$.changeplan?'count1':'count']($.TK_SIGN.id,$.TK_SIGN.sign,'totalhelptimes',$.totalhelptimes)
+        }
         console.log('本次助力成功次数',$.successhelptimes)
         allMessage += `本次助力成功次数 ${$.successhelptimes}\n`
         await yxl[$.changeplan?'count1':'count']($.TK_SIGN.id,$.TK_SIGN.sign,'successhelptimes',$.successhelptimes)
-        if($.successhelptimes===0&&new Date().getHours() ==0) {
+        if ($.successhelptimes === 0 && new Date().getHours() == 0) {
             console.log('你的第一次给了谁？')
             allMessage += `助力一直为零签到数据将停更！\n`
-            }  
+        }
 //其他时段签到                  
     }else{
         console.log(`您今日已助力过，不再运行！`)
@@ -221,6 +223,7 @@ async function run() {
     console.info('获取助力信息：',help)
     try {
         console.info('助力cookie数量:',helpCookiesArr.length)
+        $.totalhelptimes=helpCookiesArr.length
         for(let i = 0; i < helpCookiesArr.length; i++) {
             //$.UA=yxl.JS_USER_AGENT
             $.UA=`jdltapp;iPhone;3.8.22;${Math.ceil(Math.random() * 4 + 10)}.${Math.ceil(Math.random() * 4)};${randomString(40)};Mozilla/5.0 (Linux; Android 10; PCCM00 Build/QKQ1.191021.002; wv)AppleWebKit/537.36 (KHTML like Gecko) Version/4.0 Chrome/102.0.5005.125MobileSafari/537.36;`
@@ -294,13 +297,13 @@ async function helpProcess(help) {
         PROXY_PORT=prox.port
     }
 
-    $.totalhelptimes++
+
     while (helpToolsArr.length > 0) {
         let tool = helpToolsArr.pop()
 
         if($.dpqd_help[tool.UserName]){
             console.log('☹️',Number(tool.id)+1,$.dpqd_help[tool.UserName],'跳过')
-            $.totalhelptimes--
+
             continue
         }
         
@@ -327,6 +330,7 @@ async function helpProcess(help) {
         }
         if (help.assist_full || $.successhelptimes >= $.maxHelpNumber) {
             console.log(`🎉${help.UserName} 助力完成`)
+            $.hotFlag = true
             break
         }else if(help.assist_out || help.helpErrCount >= $.maxHelpErrCount){
             console.log(`😴退出执行`)
@@ -399,7 +403,7 @@ async function helpUserG(help, tool) {
                     tool.assisted = true
                     $.updateHelpData = true
                     help.helpErrCount = 0
-                    $.totalhelptimes--
+
                 } else if (/^活动太火爆了，请稍后重试$/.test(desc)) {
                     help.helpErrCount++
                     $.userhot = true
@@ -471,7 +475,7 @@ async function helpUserN(help, tool) {
                     tool.assisted = true
                     $.updateHelpData = true
                     help.helpErrCount = 0
-                    $.totalhelptimes--
+
                 } else if (/^活动太火爆了，请稍后重试$/.test(desc)) {
                     $.userhot = true
                     help.helpErrCount++
