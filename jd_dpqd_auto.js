@@ -149,7 +149,7 @@ async function firststep() {
     requesttimes++
     for (let [index, value] of cookiesArr.entries()) {
         try {
-            $.UA = yxl.USER_AGENT
+            $.UA = yxl.getua()
             cookie = value
             UserName = decodeURIComponent(cookie.match(/pt_pin=([^;]*)/)[1])
             console.log(`\n开始【账号${index + 1}】${UserName}\n`)
@@ -166,7 +166,7 @@ async function secondstep() {
     //按用户顺序签到
     for (let [index, value] of cookiesArr.entries()) {
         try {
-            $.UA = yxl.USER_AGENT
+            $.UA = yxl.getua()
             cookie = value
             UserName = decodeURIComponent(cookie.match(/pt_pin=([^;]*)/)[1])
             console.log(`\n开始【账号${index + 1}】${UserName}\n`)
