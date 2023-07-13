@@ -1,7 +1,7 @@
 /**
  * cron: 20 1 0 * * *
 */
-console.log('当前版本号', '202305-v1.1')
+console.log('当前版本号', '202307-v1.1')
 const yxl = require('./depend/yxl')
 const $ = new yxl.Env('邀请领现金三合一（店铺签到专用）');
 let linkIdarry = ["Wvzc_VpNTlSkiQdHT8r7QA","3orGfh1YkwNLksxOcN8zWQ"]
