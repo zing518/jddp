@@ -1,6 +1,6 @@
 /**
  * 连续签到，1-7天依次可得1+2+4+10+6+7+20，连续七天得50。无豆或报错自行暂停。
- * cron: 20 11 * * * jd_dpqd_dbqd.js
+ * cron: 20 11 * * * 低保签到
  */
 const yxl = require('./depend/yxl')
 const $ = new yxl.Env('低保签到');
