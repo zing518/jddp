@@ -5,7 +5,7 @@ console.log('当前版本号', '202310-v1.0')
 const yxl = require('./depend/yxl')
 
 const $ = new yxl.Env('Jd新农场');
-if (0) console.debug = () => { }// 0打印，1不打印
+if (1) console.debug = () => { }// 0打印，1不打印
 if (!process.env.NEWFRUIT_RUN) {
   console.log("不自动运行，容易火爆，设置 export NEWFRUIT_RUN='随便设个啥'运行脚本")
     
