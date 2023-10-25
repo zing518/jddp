@@ -2,7 +2,7 @@
  * cron: 20 8,20 0 * * *
 */
 console.log('当前版本号', '202310-v1.0')
-console.log('前几个号助力会给作者！')
+console.log('前几个号助力会给作者！NOT_DO_TASK控制任务是否跑')
 const yxl = require('./depend/yxl')
 
 const $ = new yxl.Env('Jd新农场');
