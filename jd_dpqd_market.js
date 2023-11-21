@@ -1,7 +1,7 @@
 /*
 任务，抽奖
 23 8,23 * * * 
-updatetime:2023/11/21
+updatetime:2023/1/21
  */
 const $ = new Env('京东新超市');
 
