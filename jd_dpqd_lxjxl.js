@@ -1,5 +1,5 @@
 /**
- * cron: 20 1 0 * * *
+ * cron: 20 1,21 0 * * *
 */
 console.log('当前版本号', '202310-v1.0')
 const yxl = require('./depend/yxl')
